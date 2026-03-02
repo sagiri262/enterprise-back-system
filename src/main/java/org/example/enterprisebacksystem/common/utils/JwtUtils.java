@@ -38,11 +38,11 @@ public class JwtUtils {
 
     // 解析 TOKENS
     /*
-    * 解析
-    * 验证
-    * 建立
-    * 解析签名 token
-    * 获得缓存
+    * 解析 parser()
+    * 验证 verifyWith( 私钥 )
+    * 建立 build()
+    * 解析签名 token parseSignedClaims( token )
+    * 获得缓存 getPayload()
     * */
     public static Claims parseToken(String token) {
         return Jwts.parser()
