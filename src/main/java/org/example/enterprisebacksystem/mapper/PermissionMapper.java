@@ -21,5 +21,7 @@ public interface PermissionMapper extends BaseMapper<Permission> {
             "from sys_role r" +
             "inner join sys_user_role ur on r.id = ur.role_id" +
             "where ur.user_id = #{userId}")
-    List<String> selectPermissionCodesByRoleId(Long userId);
+
+
+    List<String> selectRoleCodesByUserId(Long userId);
 }

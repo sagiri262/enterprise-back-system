@@ -3,12 +3,14 @@ package org.example.enterprisebacksystem.security;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import org.jspecify.annotations.NullMarked;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import java.util.Collection;
 import java.util.stream.Collector;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.example.enterprisebacksystem.domain.User;
 
 @Data
@@ -16,11 +18,15 @@ import org.example.enterprisebacksystem.domain.User;
 @AllArgsConstructor
 public class LoginUser implements UserDetails {
     private User user;
-    private List<Collection> permissions;
+
+    /**
+     * 这里保存权限字符串：
+     * 例如 user:list、user:create、ROLE_admin
+     */
+    private List<String> permissions;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // 将字符串权限转换为 Security 要求的 GrantedAuthority 对象
         return permissions.stream()
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
@@ -35,6 +41,7 @@ public class LoginUser implements UserDetails {
     }
 
     @Override
+    @NullMarked
     public String getUsername() {
         return user.getUsername();
     }
@@ -57,5 +64,9 @@ public class LoginUser implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public Long getUserId() {
+        return user == null ? null : user.getId();
     }
 }

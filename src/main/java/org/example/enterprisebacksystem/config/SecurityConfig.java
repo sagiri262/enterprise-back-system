@@ -38,8 +38,17 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable) // 禁用 CSRF（前后端分离不需要）
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 禁用 Session
+                /*
+                 * "/api/auth/**",
+                 * "/swagger-ui/**",
+                 * "/v3/api-docs/**"
+                * */
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll() // 白名单
+                        .requestMatchers("/api/auth/**",
+                                         "/swagger-ui.html",
+                                         "/swagger-ui/**",
+                                         "/v3/api-docs",
+                                         "/v3/api-docs/**").permitAll() // 白名单
                         .anyRequest().authenticated() // 其余接口必须登录
                 );
 

@@ -6,7 +6,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.example.enterprisebacksystem.common.utils.JwtUtils;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,6 +14,15 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
+
+import org.example.enterprisebacksystem.common.utils.JwtUtils;
+import org.example.enterprisebacksystem.common.annotation.AuditLog;
+import org.example.enterprisebacksystem.common.api.ApiResponse;
+import org.example.enterprisebacksystem.domain.User;
+import org.example.enterprisebacksystem.dto.auth.LoginReq;
+import org.example.enterprisebacksystem.dto.auth.LoginResp;
+import org.example.enterprisebacksystem.service.AuthService;
+import org.example.enterprisebacksystem.service.UserService;
 
 @Component
 @RequiredArgsConstructor

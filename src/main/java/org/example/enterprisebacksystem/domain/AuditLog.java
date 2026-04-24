@@ -19,7 +19,7 @@ public class AuditLog {
     private String userName;
     /*
     * 操作方法 action
-    * 请求方法（GET/POST）
+    * 请求方法（GET/POST） 加 DELETE PUT
     * 请求路径 url
     * 请求参数 params
     * IP地址
