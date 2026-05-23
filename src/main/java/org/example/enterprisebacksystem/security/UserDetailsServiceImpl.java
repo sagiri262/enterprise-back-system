@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import org.example.enterprisebacksystem.domain.User;
 import org.example.enterprisebacksystem.mapper.PermissionMapper;
 import org.example.enterprisebacksystem.mapper.UserMapper;
-import org.jspecify.annotations.NullMarked;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -22,7 +21,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     private final PermissionMapper permissionMapper;
 
     @Override
-    @NullMarked
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userMapper.selectOne(
                 new LambdaQueryWrapper<User>()

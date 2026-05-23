@@ -3,12 +3,10 @@ package org.example.enterprisebacksystem.security;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import org.jspecify.annotations.NullMarked;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import java.util.Collection;
-import java.util.stream.Collector;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.example.enterprisebacksystem.domain.User;
@@ -41,7 +39,6 @@ public class LoginUser implements UserDetails {
     }
 
     @Override
-    @NullMarked
     public String getUsername() {
         return user.getUsername();
     }

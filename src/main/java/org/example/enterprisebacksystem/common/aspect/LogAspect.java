@@ -1,7 +1,6 @@
 package org.example.enterprisebacksystem.common.aspect;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -9,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.reflect.MethodSignature;
 import org.example.enterprisebacksystem.common.annotation.AuditLog;
 
 import org.example.enterprisebacksystem.mapper.AuditLogMapper;
@@ -79,7 +77,7 @@ public class LogAspect {
             }
 
             String params = objectMapper.writeValueAsString(point.getArgs());
-            logEntity.setParams(params);
+            logEntity.setParams(maskSensitiveParams(params));
 
             auditLogMapper.insert(logEntity);
         }
@@ -89,7 +87,7 @@ public class LogAspect {
 
     }
 
-    private String makeSensitiveParams(String params) {
+    private String maskSensitiveParams(String params) {
         if(params == null) {
             return null;
         }

@@ -3,17 +3,18 @@ package org.example.enterprisebacksystem.common.exception;
 import jakarta.validation.ConstraintViolationException;
 import org.example.enterprisebacksystem.common.api.ApiResponse;
 import org.example.enterprisebacksystem.common.api.ErrorCode;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -54,6 +55,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ApiResponse<Void> handleException(Exception ex) {
-        return ApiResponse.fail(ErrorCode.INTERNAL_ERROR);
+        log.error("系统异常", ex);
+        String message = ex.getMessage();
+        if (message == null || message.isBlank()) {
+            message = ErrorCode.INTERNAL_ERROR.getMessage();
+        }
+        return ApiResponse.fail(ErrorCode.INTERNAL_ERROR.getCode(), message);
     }
 }

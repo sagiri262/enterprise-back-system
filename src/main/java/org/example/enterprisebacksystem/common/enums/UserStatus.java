@@ -14,4 +14,17 @@ public enum UserStatus {
         this.code = code;
         this.desc = desc;
     }
+
+    public static boolean isValid(Integer code) {
+        if (code == null) {
+            return false;
+        }
+
+        for (UserStatus status : values()) {
+            if (status.code == code) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

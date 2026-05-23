@@ -16,12 +16,10 @@ public interface PermissionMapper extends BaseMapper<Permission> {
     List<String> selectPermissionCodesByUserId(Long userId);
 
 
-    // 根据用户 ID 查询权限编码列表 (如: "ROLE_ADMIN")
-    @Select("select distinct r.code" +
-            "from sys_role r" +
-            "inner join sys_user_role ur on r.id = ur.role_id" +
-            "where ur.user_id = #{userId}")
-
-
+    // 根据用户 ID 查询角色编码列表 (如: "admin")
+    @Select("SELECT DISTINCT r.code " +
+            "FROM sys_role r " +
+            "INNER JOIN sys_user_role ur ON r.id = ur.role_id " +
+            "WHERE ur.user_id = #{userId} AND r.code IS NOT NULL AND r.code <> ''")
     List<String> selectRoleCodesByUserId(Long userId);
 }

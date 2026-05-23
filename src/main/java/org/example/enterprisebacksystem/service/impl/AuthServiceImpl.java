@@ -18,28 +18,37 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
     private final UserMapper userMapper;
-
-    // 初始化 BCrypt 加密器
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final BCryptPasswordEncoder passwordEncoder;
 
     @Override
     public LoginResp login(LoginReq req) {
         // 根据用户名查询用户
         User user = userMapper.selectOne(new LambdaQueryWrapper<User>()
-                .eq(User::getUsername, req.getUsername()));
+                .eq(User::getUsername, req.getUsername())
+                .last("LIMIT 1"));
 
         if(user == null) {
             throw new BizException(ErrorCode.BAD_REQUEST.getCode(), "用户名或密码错误！");
         }
 
         // 校验账号状态
-        if(user.getStatus() == 0) {
+        if(user.getStatus() != null && user.getStatus() == 0) {
             throw new BizException(ErrorCode.FORBIDDEN.getCode(), "用户账号已被禁用！");
+        }
+
+        if(user.getPassword() == null || user.getPassword().isBlank()) {
+            throw new BizException(ErrorCode.BAD_REQUEST.getCode(), "账号密码未初始化，请联系管理员！");
         }
 
         // 3、校验密码
         // req.getPassword() 是明文，user.getPassword() 是数据库里的密文
-        boolean matches = passwordEncoder.matches(req.getPassword(), user.getPassword());
+        boolean matches;
+        try {
+            matches = passwordEncoder.matches(req.getPassword(), user.getPassword());
+        } catch (IllegalArgumentException e) {
+            throw new BizException(ErrorCode.BAD_REQUEST.getCode(), "数据库密码格式不是 BCrypt，请重新初始化或重置密码！");
+        }
+
         if(!matches) {
             throw new BizException(ErrorCode.BAD_REQUEST.getCode(), "用户名或密码错误！");
         }

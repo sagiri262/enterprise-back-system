@@ -14,5 +14,17 @@ public enum PermissionType {
         this.code = code;
         this.desc = desc;
     }
-}
 
+    public static boolean isValid(Integer code) {
+        if (code == null) {
+            return false;
+        }
+
+        for (PermissionType type : values()) {
+            if (type.code == code) {
+                return true;
+            }
+        }
+        return false;
+    }
+}

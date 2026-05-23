@@ -16,17 +16,12 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 
 import org.example.enterprisebacksystem.common.utils.JwtUtils;
-import org.example.enterprisebacksystem.common.annotation.AuditLog;
-import org.example.enterprisebacksystem.common.api.ApiResponse;
-import org.example.enterprisebacksystem.domain.User;
-import org.example.enterprisebacksystem.dto.auth.LoginReq;
-import org.example.enterprisebacksystem.dto.auth.LoginResp;
-import org.example.enterprisebacksystem.service.AuthService;
-import org.example.enterprisebacksystem.service.UserService;
 
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
+    private static final String TOKEN_PREFIX = "Bearer ";
+
     private final UserDetailsService userDetailService;
 
     @Override
@@ -40,6 +35,10 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
             return;
         }
 
+        if (token.startsWith(TOKEN_PREFIX)) {
+            token = token.substring(TOKEN_PREFIX.length());
+        }
+
         try {
             // 解析 tokens
             Claims claims = JwtUtils.parseToken(token);
@@ -47,11 +46,14 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
             String username = claims.getSubject();
 
             // 封装 Authencation 对象存入上下文中
-            UserDetails userDetails = userDetailService.loadUserByUsername(username);
-            // new 一个新的对象
-            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+            if (StringUtils.hasText(username)
+                    && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = userDetailService.loadUserByUsername(username);
+                UsernamePasswordAuthenticationToken authenticationToken =
+                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
-            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+            }
         }
         catch(Exception e) {
             // Token 无效或过期，这里暂不处理，交给 Security 后续过滤器拦截
