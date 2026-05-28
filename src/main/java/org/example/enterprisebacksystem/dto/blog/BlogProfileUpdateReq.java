@@ -1,19 +1,11 @@
-package org.example.enterprisebacksystem.dto.user;
+package org.example.enterprisebacksystem.dto.blog;
 
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
-public class UserSaveReq {
-    @NotBlank(message = "用户名不能为空")
-    @Size(max = 50, message = "用户名最长50字符")
-    private String username;
-
-    @Size(max = 100, message = "密码最长100字符")
-    private String password;
-
+public class BlogProfileUpdateReq {
     @Size(max = 50, message = "昵称最长50字符")
     private String nickname;
 
@@ -26,6 +18,4 @@ public class UserSaveReq {
 
     @Size(max = 300, message = "个人简介最长300字符")
     private String bio;
-
-    private Integer status = 1;
 }

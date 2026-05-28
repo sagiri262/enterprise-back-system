@@ -1,52 +1,165 @@
-# 企业后端管理系统
+# 企业后台管理系统
 
-7 天（每天 6 小时）可交付排期
-## Day1：项目骨架（工程化先立住）
+一个基于 Spring Boot、Spring Security、JWT、MyBatis-Plus、Vue 的通用企业后台脚手架。当前仓库覆盖用户、角色、权限、批量授权、登录认证、接口鉴权和 AOP 审计日志，适合作为简历项目或业务后台底座继续扩展。
 
-分层结构：controller/service/mapper/domain/dto ，统一返回体、全局异常、参数校验（Hibernate Validator），Swagger 接入 + 接口分组
+## 功能清单
 
-## Day2：数据库建模 + 基础 CRUD
+- 统一响应体、全局异常处理、参数校验
+- 用户/角色/权限分页查询与 CRUD
+- BCrypt 密码加密、JWT 登录认证
+- Spring Security 过滤器认证和 `@PreAuthorize` 方法级鉴权
+- 用户角色、角色权限批量授权
+- AOP 审计日志：记录用户、接口、参数脱敏、耗时、状态
+- Vue 单页联调原型：登录、用户、角色、权限、授权
+- SQL 初始化脚本和 Postman 集合
 
-表：user、role、permission、user_role、role_permission、audit_log
+## 技术栈
 
-完成用户/角色/权限的 CRUD
+- 后端：Spring Boot、Spring Security、MyBatis-Plus、MySQL、JWT、Spring AOP
+- 前端：Vue 3、Vite、fetch
+- 测试：JUnit 5
 
-## Day3：登录认证（从简单到规范）
+## 项目结构
 
-先做：用户名+密码登录（BCrypt 加密）
+```text
+src/main/java/org/example/enterprisebacksystem
+├── common       # 通用返回、异常、枚举、AOP、JWT 工具
+├── config       # MyBatis-Plus、Spring Security 配置
+├── controller   # REST API
+├── domain       # 数据库实体
+├── dto          # 请求/响应 DTO
+├── mapper       # MyBatis-Plus Mapper
+├── security     # LoginUser、JWT 过滤器、UserDetailsService
+└── service      # 业务接口与实现
+```
 
-登录成功返回 token（先用 JWT 或简单 session 都行；建议 JWT，更好写简历）
+## 架构图
 
-## Day4：鉴权（项目含金量关键点）
+```mermaid
+flowchart LR
+    Browser[Vue Admin] --> API[Controller]
+    API --> Security[Spring Security + JWT Filter]
+    Security --> Service[Service]
+    Service --> Mapper[MyBatis-Plus Mapper]
+    Mapper --> DB[(MySQL)]
+    API --> AOP[AOP Audit Log]
+    AOP --> Audit[(sys_audit_log)]
+```
 
-用 Spring Security 做：
+## ER 图
 
-登录过滤器
+```mermaid
+erDiagram
+    SYS_USER ||--o{ SYS_USER_ROLE : has
+    SYS_ROLE ||--o{ SYS_USER_ROLE : belongs
+    SYS_ROLE ||--o{ SYS_ROLE_PERMISSION : owns
+    SYS_PERMISSION ||--o{ SYS_ROLE_PERMISSION : grants
+    SYS_USER ||--o{ SYS_AUDIT_LOG : writes
 
-权限校验（接口需要某权限）
+    SYS_USER {
+      bigint id
+      varchar username
+      varchar password
+      tinyint status
+      tinyint deleted
+    }
+    SYS_ROLE {
+      bigint id
+      varchar name
+      varchar code
+    }
+    SYS_PERMISSION {
+      bigint id
+      bigint parent_id
+      varchar name
+      varchar code
+      tinyint type
+    }
+    SYS_AUDIT_LOG {
+      bigint id
+      bigint user_id
+      varchar action
+      varchar method
+      bigint cost_time
+    }
+```
 
-做到：不同角色访问同接口，结果不同
+## 鉴权流程
 
-## Day5：审计日志（AOP 一把加分）
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant A as AuthController
+    participant S as AuthService
+    participant F as JwtAuthenticationTokenFilter
+    participant U as UserDetailsService
+    participant API as Protected API
 
-AOP 拦截 Controller
+    C->>A: POST /api/auth/login
+    A->>S: 校验用户名和 BCrypt 密码
+    S-->>C: 返回 JWT token
+    C->>F: Authorization: Bearer token
+    F->>F: 解析 JWT
+    F->>U: 加载用户角色和权限
+    U-->>F: LoginUser authorities
+    F->>API: 写入 SecurityContext 后放行
+    API-->>C: 返回业务数据
+```
 
-记录：userId、uri、method、参数（脱敏）、耗时、状态码
+## 快速启动
 
-写入 audit_log 表
+1. 创建并初始化数据库：
 
-## Day6：补齐细节 + 规范化
+```bash
+mysql -uroot -p < src/main/resources/sql/init.sql
+```
 
-分页查询、批量授权
+2. 修改数据库配置：
 
-数据字典/枚举规范
+```properties
+spring.datasource.url=jdbc:mysql://localhost:3306/enterprise_db?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&useSSL=false
+spring.datasource.username=root
+spring.datasource.password=你的密码
+```
 
-关键接口写 3~5 个测试
+3. 启动后端：
 
-## Day7：交付“简历友好型仓库”
+```bash
+./mvnw spring-boot:run
+```
 
-README：架构图、ER 图、鉴权流程图、快速启动
+4. 启动前端：
 
-Postman/Apifox 接口集合导出
+```bash
+cd frontend/my-admin-demo
+npm install
+npm run dev
+```
 
-SQL 初始化脚本
+默认账号：
+
+```text
+username: admin
+password: 123456
+```
+
+## 常用接口
+
+- `POST /api/auth/login`：登录，返回 token
+- `POST /api/auth/register-test`：创建测试用户
+- `GET /api/users?page=1&size=10`：用户分页
+- `GET /api/roles?page=1&size=10`：角色分页
+- `GET /api/permissions?page=1&size=10`：权限分页
+- `POST /api/auth/users/{userId}/roles`：给用户批量分配角色
+- `POST /api/auth/roles/{roleId}/permissions`：给角色批量分配权限
+
+Postman 集合位于：
+
+```text
+docs/api/EnterpriseBackSystem.postman_collection.json
+```
+
+## Day6/Day7 交付状态
+
+- Day6：已补分页请求基类、用户/角色/权限分页 DTO、批量授权接口、枚举校验和 5 个关键测试样例。
+- Day7：已补 README 架构说明、ER 图、鉴权流程图、快速启动、SQL 初始化脚本和 Postman 集合。
