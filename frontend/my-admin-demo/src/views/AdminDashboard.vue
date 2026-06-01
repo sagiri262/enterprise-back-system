@@ -9,7 +9,7 @@ const loading = ref(false)
 const message = ref('')
 const dataMode = ref(localStorage.getItem('admin_data_mode') || 'api')
 
-const loginForm = reactive({ username: 'admin', password: '123456a' })
+const loginForm = reactive({ username: '', password: '' })
 const userForm = reactive({ username: '', password: '', nickname: '', email: '', status: 1 })
 const roleForm = reactive({ name: '', code: '', description: '' })
 const permissionForm = reactive({ parentId: 0, name: '', code: '', type: 1, path: '' })
